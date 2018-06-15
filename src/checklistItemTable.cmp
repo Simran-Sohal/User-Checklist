@@ -1,0 +1,22 @@
+<!-- Component -->
+<aura:component>
+    <aura:attribute name="items" type="Object"/>
+    <aura:attribute name="itemListColumns" type="List"/>
+    <aura:handler name="init" value="{!this}" action="{!c.onInit }"/>
+    
+    <lightning:datatable data="{!v.items }"
+                         columns="{!v.itemListColumns }"
+                         keyField="Id"
+                         hideCheckboxColumn="true"/>
+</aura:component>	
+
+<!-- Controller -->
+({
+	onInit : function(component, event, helper) {
+        component.set('v.itemListColumns', [
+                    { label: 'Item Name', fieldName: 'itemName', type: 'text'},
+                    { label: 'Description', fieldName: 'itemDescription', type: 'text'},
+                    { label: 'Completed', fieldName: 'isCompleted', type: 'boolean'}
+                ]);
+	}
+})
