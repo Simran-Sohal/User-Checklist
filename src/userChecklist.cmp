@@ -1,0 +1,85 @@
+<!-- Component -->
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" controller="UserChecklistController">
+    <aura:attribute access="global" name="checklistName" type="String" default="Checklist" description="Headline for the component"/>
+    
+    <aura:attribute access="private" name="checklist" type="Checklist" description="Instance of user checklist record"/>
+    <aura:attribute access="private" name="isChecklistFound" type="Boolean" description="Determines whether the checklist exist for the user or not"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.onInit}"/>
+    
+    <lightning:card title="{!v.checklistName}">
+        <aura:set attribute="actions">
+            <aura:if isTrue="{!v.isChecklistFound}">
+                <lightning:button label="Add Item"/>
+                <aura:set attribute="else">
+                    <lightning:button label="New"/>
+                </aura:set>
+            </aura:if>
+        </aura:set>
+        <p class="slds-p-horizontal_small">
+            {!v.body}
+        </p>
+    </lightning:card>
+    
+</aura:component>
+
+<!-- Controller -->
+({
+	onInit : function(component, event, helper) {
+		var action = component.get("c.getChecklist");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (state === "SUCCESS") {
+                var userChecklistRecord = response.getReturnValue()
+                component.set("v.checklist", userChecklistRecord);
+                if (!$A.util.isUndefinedOrNull(userChecklistRecord.recordId)){
+                    component.set("v.isChecklistFound", true);
+                    helper.createChecklistComponent(component,event,helper);
+                } else {
+                    component.set("v.isChecklistFound", false);
+                }
+            }
+            else if (state === "INCOMPLETE") {
+                helper.setTextMessage(component, "Server side request canot be completed.");
+            }
+            else if (state === "ERROR") {
+                var errors = response.getError();
+                if (errors) {
+                    if (errors[0] && errors[0].message) {
+                        helper.setTextMessage(component, "Error : " + errors[0].message);
+                    }
+                }
+            }
+        });
+        $A.enqueueAction(action);
+	},
+  onClickNew : function(component, event, helper) {
+    
+  }  
+})
+
+<!-- Helper -->
+({
+    setTextMessage : function(component, message) {
+        $A.createComponent(
+            "ui:outputText",
+            { "value": message, "class" : "slds-text-body_regular" },
+            function(textMessage, status, errorMessage){
+                if (status === "SUCCESS") {
+                    component.set("v.body", textMessage);
+                }
+            }
+        );
+    },
+    createChecklistComponent : function(component, event, helper){
+        $A.createComponent(
+            "c:checklistComponent",
+            { "checklist" : component.get("v.checklist") },
+            function(checklistCmp, status, errorMessage){
+                if (status === "SUCCESS") {
+                    component.set("v.body", checklistCmp);
+                }
+            }
+        );
+    }
+})
