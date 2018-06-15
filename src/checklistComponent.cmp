@@ -1,0 +1,26 @@
+<!-- Component -->
+<aura:component >
+    <aura:attribute name="checklist" type="Checklist" description="Instance of user checklist"/>
+    
+    <div class="c-container">
+        <lightning:layout multipleRows="true">
+            <lightning:layoutItem padding="around-small" size="6">
+                <lightning:input name="checklistname" required="true" value="{!v.checklist.checklistName}" label="Name" placeholder="Enter checklist name here..." /> 
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="around-small" size="6">
+                <lightning:combobox  name="checklisttype" label="Type" required="true" value="{!v.checklist.checklistType}" placeholder="Select a type" options="{!v.checklist.checklistTypeOptions}" onchange="{!c.onTypeChange}" /> 
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="around-small" size="12">
+                <c:checklistItemTable items="{!v.checklist.checklistItems}"/> 
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+    
+</aura:component>
+
+<!-- Controller -->
+({
+	onTypeChange : function(component, event, helper) {
+		
+	}
+})
